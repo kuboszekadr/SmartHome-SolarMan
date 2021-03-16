@@ -84,7 +84,7 @@ class SolarMan:
             'start_date': timestamp_start.strftime(datetime_format),
             'end_date': timestamp_end.strftime(datetime_format),
             'perpage': 1000,
-            'use_dst': 'false'
+            'use_dst': 'false'  # ignore summer/winter time
         }
 
         r = requests.get(
@@ -93,4 +93,4 @@ class SolarMan:
             headers=self._auth_header
         ).json()
 
-        return r
+        return r['data']
