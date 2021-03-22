@@ -1,9 +1,10 @@
 import os
 import argparse
 import json
+import requests
 
 from datetime import datetime, timedelta
-from src import SolarMan
+from src import SolarMan, SolarManConverter
 
 
 def save_json(folder: str, data: json):
@@ -36,6 +37,7 @@ parser.add_argument('--date_start',
                     help='Start date of extraction (optional)- default now')
 args = parser.parse_args()
 
+# timestamp for data dumping proposes
 timestamp = datetime.now()
 
 # determine date start date
@@ -51,12 +53,7 @@ solarman = SolarMan.SolarMan(
     id=os.environ['ID'],
     secret=os.environ['SECRET_KEY']
 )
-
 solarman.get_token()  # access API
-
-# uncomment if needed
-# solarman.get_plants()  # gets available plants from user
-# solarman.get_plants_devices()  # gets inverters
 
 # download inverter data from given in .env file
 data = solarman.get_inverter_data(
@@ -67,5 +64,21 @@ data = solarman.get_inverter_data(
     timestamp_end=date_start
 )
 
-# dump data
+# save raw data
 save_json('raw', data)
+
+converter = SolarManConverter.SolarManConverter(data)
+data = converter.convert()
+
+# save processed data
+save_json('processed', data)
+
+# send data to SmartHome-API
+url = '{}/api/data_collector'.format(os.environ['API_HOST'])
+headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+payload = {'data': json.dumps(data)}
+r = requests.post(
+    url,
+    headers=headers,
+    data=payload
+)

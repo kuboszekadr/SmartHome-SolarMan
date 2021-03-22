@@ -5,6 +5,7 @@ import datetime
 
 class SolarMan:
     BASE_URL = 'https://openapi.solarmanpv.com/v1'
+    DT_ISO8601 = '%Y-%m-%d %H:%M:%S'
 
     def __init__(self, id, secret):
         self._id = id
@@ -60,6 +61,23 @@ class SolarMan:
             devices = [x['device_id'] for x in r['data']['devices']]
             self._devices[plant_id] = devices
 
+    def get_plant_power_data(self, plant_id: int, date: datetime.datetime):
+        url = SolarMan.BASE_URL + '/plant/power'
+
+        params = {
+            'plant_id': 122833,
+            'date': "2021-03-12",
+            # 'use_dst': 'false'  # ignore summer/winter time
+        }
+
+        r = requests.get(
+            url,
+            params=params,
+            headers=self._auth_header
+        ).json()
+
+        return r['data']
+
     def get_inverter_data(
         self,
         inverter_id: int,
@@ -76,13 +94,11 @@ class SolarMan:
         @returns dict with API response
         """
 
-        datetime_format = '%Y-%m-%d %H:%M:%S'
-
         url = SolarMan.BASE_URL + '/device/inverter/data'
         params = {
             'device_id': inverter_id,
-            'start_date': timestamp_start.strftime(datetime_format),
-            'end_date': timestamp_end.strftime(datetime_format),
+            'start_date': timestamp_start.strftime(SolarMan.DT_ISO8601),
+            'end_date': timestamp_end.strftime(SolarMan.DT_ISO8601),
             'perpage': 1000,
             'use_dst': 'false'  # ignore summer/winter time
         }
