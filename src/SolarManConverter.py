@@ -9,29 +9,42 @@ class SolarManConverter:
     Class providing easy convertion between SolarMan API and SmartHome
     """
 
-    def __init__(self, data: dict):
-        self._data = deepcopy(data)
+    def __init__(self,
+                 device_id: int,
+                 device_sensor_id: int,
+                 power_measure_id: int
+                 ):
 
-        # TODO
-        self._device_id = 1
-        self._sensor_id = 2
+        self._device_id = device_id
+        self._sensor_id = device_sensor_id
 
-        self._temp_measure_id = 1
-        self._power_measure_id = 2
+        self._power_measure_id = power_measure_id
 
         # initialize empty converted data
         self._converted = {'device_id': self._device_id, 'data': {}}
 
-    def convert(self):
-        results = []
-        for data in self._data['datas']:
-            r = {}
-            r['sensor_id'] = self._sensor_id
+    def convert_inverter_daily_data(self, data):
+        """
+        Converts data from SolarMAN-API inverter cumulated daily
+        data to SmartHome-API format
 
-            r['readings'] = [{'measure_id': 5, 'value': data['today_energy']}]
-            r['timestamp'] = dt.strptime(data['time'],
-                                         '%Y-%m-%dT%H:%M:%SZ').\
-                strftime('%Y%m%d %H%M%S')
+        @returns: converted data (cumulated daily inverter data)
+        """
+        results = []
+
+        # loop through avaiable data
+        for entry in data['datas']:
+            r = {}  # place holder for dict data
+
+            r['sensor_id'] = self._sensor_id
+            r['readings'] = [
+                {'measure_id': self._power_measure_id,
+                 'value': entry['today_energy']
+                 }]
+
+            # create timestamp data, convert to SmartHome
+            r['timestamp'] = dt.strptime(entry['time'], '%Y-%m-%dT%H:%M:%SZ')
+            r['timestamp'] = r['timestamp'].strftime('%Y%m%d %H%M%S')
 
             results.append(r)
 

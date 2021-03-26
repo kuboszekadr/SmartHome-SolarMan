@@ -65,8 +65,8 @@ class SolarMan:
         url = SolarMan.BASE_URL + '/plant/power'
 
         params = {
-            'plant_id': 122833,
-            'date': "2021-03-12",
+            'plant_id': plant_id,
+            'date': date.strftime(),
             # 'use_dst': 'false'  # ignore summer/winter time
         }
 

@@ -2,6 +2,7 @@ import os
 import argparse
 import json
 import requests
+import configparser
 
 from datetime import datetime, timedelta
 from src import SolarMan, SolarManConverter
@@ -30,6 +31,7 @@ def save_json(folder: str, data: json):
 parser = argparse.ArgumentParser(
     description='Downloads last 24 hour energy \
         generation data from SolarMan API')
+
 parser.add_argument('--date_start',
                     action='store',
                     type=lambda x: datetime.strptime(x, '%Y-%m-%d'),
@@ -56,7 +58,7 @@ solarman = SolarMan.SolarMan(
 solarman.get_token()  # access API
 
 # download inverter data from given in .env file
-data = solarman.get_inverter_data(
+interter_data = solarman.get_inverter_data(
     inverter_id=os.environ['INVERTER_ID'],
 
     # in API date_end = date_end (reverse naming convention)
@@ -65,20 +67,30 @@ data = solarman.get_inverter_data(
 )
 
 # save raw data
-save_json('raw', data)
+save_json('raw', interter_data)
 
-converter = SolarManConverter.SolarManConverter(data)
-data = converter.convert()
+# load config data and init converter
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+converter = SolarManConverter.SolarManConverter(
+    device_id=config['DEFAULT']['DeviceId'],
+    device_sensor_id=config['DEFAULT']['DeviceSensorId'],
+    power_measure_id=config['DEFAULT']['PowerProductionMeasureId']
+)
+interter_data = converter.convert_inverter_daily_data(data=interter_data)
 
 # save processed data
-save_json('processed', data)
+save_json('processed', interter_data)
 
 # send data to SmartHome-API
 url = '{}/api/data_collector'.format(os.environ['API_HOST'])
 headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-payload = {'data': json.dumps(data)}
+payload = {'data': json.dumps(interter_data)}
 r = requests.post(
     url,
     headers=headers,
     data=payload
 )
+
+print(200)
