@@ -1,26 +1,18 @@
-from Endpoints.Account import Account
-from Endpoints.Station import Station
+from .Endpoints.Account import Account
+from .Endpoints.Station import Station
 
-import json
-import os
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--app_id')
-parser.add_argument('--app_secret')
-parser.add_argument('--password')
-parser.add_argument('--email')
-parser.add_argument('--station_id')
-parser.add_argument('--output_path')
+def download_hour_data(app_id: str,
+                       app_secret: str,
+                       password: str,
+                       email: str,
+                       station_id: str,
+                       date: str) -> None:
 
-args = parser.parse_args()
-account = Account(args.app_id, args.app_secret, args.password, args.email)
-account.get_token()
+    account = Account(app_id, app_secret, password, email)
+    account.get_token()
 
-station = Station(args.station_id, account)
-data = station.history()
+    station = Station(station_id, account)
+    data = station.history(start_time=date)
 
-file_path = os.path.join(args.output_path, 'TODO.json')
-
-with open(file_path) as f:
-    json.dump(data)
+    return data

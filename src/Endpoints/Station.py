@@ -1,8 +1,8 @@
 from datetime import date
 import requests
 
-from src.Account import Account
-from src.API import API
+from .Account import Account
+from .API import API
 
 
 class Station(API):
