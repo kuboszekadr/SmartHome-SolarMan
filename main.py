@@ -1,96 +1,26 @@
 import os
-import argparse
 import json
-import requests
-import configparser
 
-from datetime import datetime, timedelta
-from src import SolarMan, SolarManConverter
+from dotenv import load_dotenv
+from src.Account import Account
+from src.Station import Station
 
+from datetime import date
 
-def save_json(folder: str, data: json):
-    global timestamp
-    global date_start
+load_dotenv()
 
-    date_format = '%Y_%m_%d_%H%M%S'
+app_id = os.environ.get('app_id')
+app_secret = os.environ.get('app_secret')
+password = os.environ.get('password')
+email = os.environ.get('email')
 
-    file_name = './data/{folder}/solarman_{date_start}_{timestamp}.json'.\
-        format(
-            folder=folder,
-            date_start=date_start.strftime(date_format),
-            timestamp=timestamp.strftime(date_format)
-        )
+station_id = os.environ.get('station_id')
 
-    with open(
-            file_name,
-            mode='w',
-            encoding='UTF-8') as f:
-        json.dump(data, f)
+account = Account(app_id, app_secret, password, email)
+account.get_token()
 
+station = Station(station_id, account)
+data = station.history()
 
-parser = argparse.ArgumentParser(
-    description='Downloads last 24 hour energy \
-        generation data from SolarMan API')
-
-parser.add_argument('--date_start',
-                    action='store',
-                    type=lambda x: datetime.strptime(x, '%Y-%m-%d'),
-                    dest='date_start',
-                    help='Start date of extraction (optional)- default now')
-args = parser.parse_args()
-
-# timestamp for data dumping proposes
-timestamp = datetime.now()
-
-# determine date start date
-# if left empty, use current timestamp
-date_start = args.date_start
-date_start = date_start if date_start else timestamp
-
-# calculate end date as last 24 hours
-date_end = date_start - timedelta(hours=24)
-
-# initialize new SolarMan instance
-solarman = SolarMan.SolarMan(
-    id=os.environ['ID'],
-    secret=os.environ['SECRET_KEY']
-)
-solarman.get_token()  # access API
-
-# download inverter data from given in .env file
-interter_data = solarman.get_inverter_data(
-    inverter_id=os.environ['INVERTER_ID'],
-
-    # in API date_end = date_end (reverse naming convention)
-    timestamp_start=date_end,
-    timestamp_end=date_start
-)
-
-# save raw data
-save_json('raw', interter_data)
-
-# load config data and init converter
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-converter = SolarManConverter.SolarManConverter(
-    device_id=config['DEFAULT']['DeviceId'],
-    device_sensor_id=config['DEFAULT']['DeviceSensorId'],
-    power_measure_id=config['DEFAULT']['PowerProductionMeasureId']
-)
-interter_data = converter.convert_inverter_daily_data(data=interter_data)
-
-# save processed data
-save_json('processed', interter_data)
-
-# send data to SmartHome-API
-url = '{}/api/data_collector'.format(os.environ['API_HOST'])
-headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-payload = {'data': json.dumps(interter_data)}
-r = requests.post(
-    url,
-    headers=headers,
-    data=payload
-)
-
-print(200)
+with open('data/{}.json') as f:
+    json.dump(data)
