@@ -6,7 +6,7 @@ def download_history(app_id: str,
                      app_secret: str,
                      password: str,
                      email: str,
-                     station_id: str,
+                     station_id: int,
                      date: str) -> None:
 
     account = Account(app_id, app_secret, password, email)

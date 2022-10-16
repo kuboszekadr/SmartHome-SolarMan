@@ -32,4 +32,6 @@ class Station(API):
             headers=header,
             json=payload
         )
-        return r
+
+        result = r.json()
+        return result
