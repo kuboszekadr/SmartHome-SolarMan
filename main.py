@@ -6,6 +6,7 @@ from src.download_history import download_history
 from src.streams import stream_to_disk
 
 from dotenv import load_dotenv
+from time import sleep
 
 
 def get_date() -> datetime:
@@ -22,11 +23,11 @@ def get_date() -> datetime:
 
 def download_day_data(date: datetime) -> None:
     data = download_history(
-        app_id=environ.get('app_id'),
-        app_secret=environ.get('app_secret'),
-        password=environ.get('password'),
-        email=environ.get('email'),
-        station_id=environ.get('station_id'),
+        app_id=environ['app_id'],
+        app_secret=environ['app_secret'],
+        password=environ['password'],
+        email=environ['email'],
+        station_id=environ['station_id'],
         date=date
     )
 
@@ -43,4 +44,6 @@ date = get_date()
 today = date.today()
 
 while date <= today:
+    print(date.strftime('%Y-%m-%d'))
     download_day_data(date)
+    sleep(5)
