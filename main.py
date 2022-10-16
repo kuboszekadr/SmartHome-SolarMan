@@ -46,4 +46,6 @@ today = date.today()
 while date <= today:
     print(date.strftime('%Y-%m-%d'))
     download_day_data(date)
+    
+    date += timedelta(days=1)
     sleep(5)
