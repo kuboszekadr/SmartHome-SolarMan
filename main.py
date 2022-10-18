@@ -1,7 +1,9 @@
-from os import environ
 import yaml
+import logging
 
-from datetime import datetime, timedelta
+from os import environ
+
+from datetime import datetime as dt, timedelta
 from src.download_history import download_history
 from src.streams import stream_to_disk
 
@@ -9,19 +11,16 @@ from dotenv import load_dotenv
 from time import sleep
 
 
-def get_date() -> datetime:
-    with open('.meta.yaml') as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
+def get_last_downloaded_date(last_date: dt.date) -> dt:
+    result = dt.strptime(last_date, date_format)
 
-    result = data.get('last_date', None)
-    result = datetime.strptime(result, '%Y-%m-%d')
     result = result + timedelta(days=1)
-    result = min(result, datetime.today())
+    result = min(result, dt.today())
 
     return result
 
 
-def download_day_data(date: datetime) -> None:
+def download_day_data(date: dt) -> None:
     data = download_history(
         app_id=environ['app_id'],
         app_secret=environ['app_secret'],
@@ -31,21 +30,39 @@ def download_day_data(date: datetime) -> None:
         date=date
     )
 
-    stream_to_disk(data, './data', date.strftime('%Y-%m-%d'))
+    stream_to_disk(data, './data', date)
 
+
+def update_meta_file(config: dict) -> None:
     with open('.meta.yaml', 'w', encoding='UTF-8') as f:
-        data = {}
-        data['last_date'] = date.strftime('%Y-%m-%d')
-        yaml.dump(data, f)
+        config['last_date'] = date.strftime(date_format)
+        yaml.dump(config, f)
 
 
 load_dotenv()
-date = get_date()
+with open('.meta.yaml', 'r') as f:
+    meta = yaml.load(f, yaml.FullLoader)
+
+date_format = meta['date_format']
+date = get_last_downloaded_date(meta['last_date'])
 today = date.today()
 
-while date <= today:
-    print(date.strftime('%Y-%m-%d'))
+logging.basicConfig(
+    format="'%(asctime)s | %(name)s | %(message)s'",
+    datefmt="%Y-%m-%d %H:%M:%S%z",
+    filename=f'./logs/{today.strftime(date_format)}.log',
+    level=logging.DEBUG
+)
+
+while True:
+    logging.info(f"Downloading data for day: {date.strftime(date_format)}")
     download_day_data(date)
-    
+
+    if date == today:
+        break
+
     date += timedelta(days=1)
     sleep(5)
+
+meta['last_date'] = date.strftime(date_format)
+update_meta_file(meta)
