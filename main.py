@@ -2,6 +2,7 @@ import yaml
 import logging
 
 from os import environ
+from sys import stdout
 
 from datetime import datetime as dt, timedelta
 from src.download_history import download_history
@@ -9,15 +10,6 @@ from src.streams import stream_to_disk
 
 from dotenv import load_dotenv
 from time import sleep
-
-
-def get_last_downloaded_date(last_date: dt.date) -> dt:
-    result = dt.strptime(last_date, date_format)
-
-    result = result + timedelta(days=1)
-    result = min(result, dt.today())
-
-    return result
 
 
 def download_day_data(date: dt) -> None:
@@ -44,8 +36,8 @@ with open('.meta.yaml', 'r') as f:
     meta = yaml.load(f, yaml.FullLoader)
 
 date_format = meta['date_format']
-date = get_last_downloaded_date(meta['last_date'])
-today = date.today()
+date = dt.strptime(meta['last_date'], date_format)
+today = dt.today().date()
 
 logging.basicConfig(
     format="'%(asctime)s | %(name)s | %(message)s'",
@@ -53,12 +45,13 @@ logging.basicConfig(
     filename=f'./logs/{today.strftime(date_format)}.log',
     level=logging.DEBUG
 )
+logging.getLogger().addHandler(logging.StreamHandler(stdout))
 
 while True:
     logging.info(f"Downloading data for day: {date.strftime(date_format)}")
     download_day_data(date)
 
-    if date == today:
+    if date.date() == today:
         break
 
     date += timedelta(days=1)
