@@ -6,7 +6,7 @@ from sys import stdout
 
 from datetime import datetime as dt, timedelta
 from src.download_history import download_history
-from src.streams import stream_to_disk
+from src.streams import stream_to_api, stream_to_disk
 
 from dotenv import load_dotenv
 from time import sleep
@@ -23,6 +23,7 @@ def download_day_data(date: dt) -> None:
     )
 
     stream_to_disk(data, './data', date)
+    stream_to_api(data)
 
 
 def update_meta_file(config: dict) -> None:
