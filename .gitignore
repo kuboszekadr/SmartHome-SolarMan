@@ -3,5 +3,5 @@
 !data/*/**.gitkeep
 .env
 .meta.yaml
-data/
-logs/
+data/*
+logs/*

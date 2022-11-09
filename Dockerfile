@@ -1,7 +1,7 @@
 FROM python:3.9-slim
 
-COPY . /SmartHome-SolarMan
-WORKDIR /SmartHome-SolarMan
+WORKDIR /app
+COPY . /app
 
 RUN pip install -r requirements.txt
-ENTRYPOINT ["sh"]
+CMD python main.py
