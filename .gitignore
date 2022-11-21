@@ -5,3 +5,4 @@
 .meta.yaml
 data/*
 logs/*
+checkpoints/*
