@@ -52,13 +52,13 @@ while True:
         download_day_data(date)
     except Exception as e:
         logging.error(f"Unhandled erorr {e}: {repr(e)}")
-        break
+        raise
+    else:
+        checkpoint['last_date'] = date.strftime(date_format)
+        update_checkpoint_file(checkpoint)
 
     if date.date() == today:
         break
 
     date += timedelta(days=1)
     sleep(5)
-
-checkpoint['last_date'] = date.strftime(date_format)
-update_checkpoint_file(checkpoint)
