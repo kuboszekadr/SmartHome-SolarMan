@@ -12,7 +12,7 @@ class DataCollectorStreaming:
 
     @property
     def endpoint(self) -> str:
-        result = f"http://{self.url}:{self.port}/api/v2.0/data_collector"
+        result = f"http://{self.url}:{self.port}/api/data_collector"
         return result
 
     def stream(self, data):
@@ -24,6 +24,7 @@ class DataCollectorStreaming:
 
         for idx, station_data_item in enumerate(station_data_items):
             value = station_data_item['generationPower']
+            value = 0.0 if value is None else value
 
             timestamp = station_data_item['dateTime']
             timestamp = dt.fromtimestamp(timestamp)
@@ -39,8 +40,13 @@ class DataCollectorStreaming:
             'device_name': self.device_name,
             'readings': readings
         }
+        headers = {
+            'User-Agent': 'SolarMan-API'
+        }
 
-        requests.post(
+        r = requests.post(
             url=self.endpoint,
+            headers=headers,
             json=payload
         )
+        assert r.status_code == 200, f'Expected 200, {r.status_code} received.'
