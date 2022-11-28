@@ -21,9 +21,6 @@ endpoint_port = environ['endpoint_port']
 def load_checkpoint():
     result = None
 
-    if not os.path.exists(checkpoint_file):
-        return result
-
     with open(checkpoint_file, 'r') as f:
         data = yaml.load(f, yaml.FullLoader)
     result = data.get('latest_file', '1999-01-01.json')
@@ -40,9 +37,11 @@ def save_checkpoint(file_path: str):
 
 
 def get_files_to_read(root: str, latest_file: str) -> list:
+    file_month = latest_file[:-8]
+    start_file = os.path.join(root, file_month, latest_file)
+
     search_template = os.path.join('**', '*.json')
     root = os.path.join(root, search_template)
-    start_file = os.path.join(root, latest_file)
 
     files = glob.glob(
         root,
@@ -72,7 +71,12 @@ for file in files_to_process:
 
     logging.info(f"Sending to API...")
 
-    stream.stream(data)
-    save_checkpoint(file)
+    try:
+        stream.stream(data)
+    except Exception as e:
+        logging.exception(f"Unhandled erorr {e}: {repr(e)}")
+        raise
+    else:
+        save_checkpoint(file)
 
-    sleep(5)
+    sleep(1)
