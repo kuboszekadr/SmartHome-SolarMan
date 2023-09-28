@@ -1,5 +1,5 @@
 class API():
-    URL = "https://api.solarmanpv.com/{api}"
+    URL = "https://globalapi.solarmanpv.com/{api}"
 
     def __init__(self, name: str) -> None:
         self._url = self.URL.format(api=name.lower())

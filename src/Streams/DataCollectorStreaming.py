@@ -47,6 +47,7 @@ class DataCollectorStreaming:
         r = requests.post(
             url=self.endpoint,
             headers=headers,
-            json=payload
+            json=payload,
+            timeout=(60, 60)
         )
         assert r.status_code == 200, f'Expected 200, {r.status_code} received.'

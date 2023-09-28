@@ -17,7 +17,7 @@ class Account:
         self._email: str = email
 
     def get_token(self) -> str:
-        url = "https://api.solarmanpv.com/account/v1.0/token"
+        url = "https://globalapi.solarmanpv.com/account/v1.0/token"
 
         params = {
             'appId': self._app_id,
@@ -37,7 +37,8 @@ class Account:
             url,
             params=params,
             headers=headers,
-            json=payload
+            json=payload,
+            timeout=(30, 30)
         )
         r = r.json()
 

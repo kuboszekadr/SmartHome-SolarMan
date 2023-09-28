@@ -30,7 +30,8 @@ class Station(API):
         r = requests.post(
             url=url,
             headers=header,
-            json=payload
+            json=payload,
+            timeout=(30, 30)
         )
 
         result = r.json()
