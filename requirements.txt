@@ -1,12 +1,3 @@
-autopep8==2.0.0
-certifi==2022.9.24
-charset-normalizer==2.1.1
-idna==3.4
-psycopg2==2.9.5
-pyaml==21.10.1
-pycodestyle==2.9.1
-PyYAML==6.0
+pyaml==23.9.6
+PyYAML==6.0.1
 requests==2.9.1
-SQLAlchemy==1.4.44
-tomli==2.0.1
-urllib3==1.26.12
