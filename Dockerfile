@@ -1,7 +1,7 @@
-FROM python:3.9-slim
+FROM python:3.12-bullseye
 
-WORKDIR /app
 COPY . /app
+WORKDIR /app
 
-RUN pip install -r requirements.txt
-ENTRYPOINT bash
+RUN pip install --no-cache-dir poetry
+RUN poetry config virtualenvs.in-project true
