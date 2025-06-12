@@ -9,25 +9,25 @@ class SolarmanSettings(BaseSettings):
     All environment variables are prefixed with SOLARMAN_.
     """
     # API credentials
-    APP_ID: str
-    APP_SECRET: str
-    PASSWORD: str
-    EMAIL: str
+    app_id: str
+    app_secret: str
+    password: str
+    email: str
     
     # System identifiers
-    INVERTER_SN: str
-    STATION_ID: str
+    inverter_sn: str
+    station_id: str
     
     # File paths
-    WORKING_DIR: str
-    CHECKPOINT_FOLDER: str
-    STORAGE_PATH: str
-    LOGS_PATH: str
+    working_dir: str
+    checkpoint_folder: str
+    storage_folder: str
+    logs_folder: str
     
     # Device and endpoint information
-    DEVICE_NAME: str
-    ENDPOINT_URL: str
-    ENDPOINT_PORT: int
+    device_name: str
+    endpoint_url: str
+    endpoint_port: int
 
     class Config:
         env_prefix = "SOLARMAN_"
@@ -35,23 +35,23 @@ class SolarmanSettings(BaseSettings):
     @property
     def checkpoint_folder_path(self) -> str:
         """Returns the full path to the checkpoint folder."""
-        return os.path.join(self.WORKING_DIR, self.CHECKPOINT_FOLDER)
+        return os.path.join(self.working_dir, self.checkpoint_folder)
         
     @property
-    def storage_path(self) -> str:
+    def storage_folder_path(self) -> str:
         """Returns the full path to the storage directory."""
-        return os.path.join(self.WORKING_DIR, self.STORAGE_PATH)
+        return os.path.join(self.working_dir, self.storage_folder)
         
     @property
-    def logs_path(self) -> str:
+    def logs_folder_path(self) -> str:
         """Returns the full path to the logs directory."""
-        return os.path.join(self.WORKING_DIR, self.LOGS_PATH)
+        return os.path.join(self.working_dir, self.logs_folder)
     
     def model_post_init(self, *args, **kwargs):
         """Create required directories after initialization."""
         os.makedirs(self.checkpoint_folder_path, exist_ok=True)
-        os.makedirs(self.storage_path, exist_ok=True)
-        os.makedirs(self.logs_path, exist_ok=True)
+        os.makedirs(self.storage_folder_path, exist_ok=True)
+        os.makedirs(self.logs_folder, exist_ok=True)
 
     @property
     def date_format(self) -> str:

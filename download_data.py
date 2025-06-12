@@ -24,15 +24,15 @@ def load_checkpoint() -> dict:
 def download_day_data(date: dt) -> None:
     """Download solar data for a specific date using configured credentials."""
     data = download_history(
-        app_id=app_config.APP_ID,
-        app_secret=app_config.APP_SECRET,
-        password=app_config.PASSWORD,
-        email=app_config.EMAIL,
-        station_id=app_config.STATION_ID,
+        app_id=app_config.app_id,
+        app_secret=app_config.app_secret,
+        password=app_config.password,
+        email=app_config.email,
+        station_id=app_config.station_id,
         date=date
     )
 
-    stream_to_disk(data, os.path.join(app_config.storage_path), date)
+    stream_to_disk(data, os.path.join(app_config.storage_folder_path), date)
 
 
 def update_checkpoint_file(date: dt) -> None:
@@ -47,10 +47,9 @@ def update_checkpoint_file(date: dt) -> None:
 
 
 def main():
-    
 
     today = dt.today().date()
-    log_file = os.path.join(app_config.logs_path, f'{today.strftime(app_config.date_format)}.log')
+    log_file = os.path.join(app_config.logs_folder, f'{today.strftime(app_config.date_format)}.log')
     logging.basicConfig(
         format="'%(asctime)s | %(name)s | %(message)s'",
         datefmt="%Y-%m-%d %H:%M:%S%z",
@@ -62,7 +61,7 @@ def main():
     checkpoint = load_checkpoint()
     date = dt.strptime(checkpoint['last_date'], app_config.date_format)
 
-    while True:
+    while date.date() <= today:
         logging.info(f"Downloading data for day: {date.strftime(app_config.date_format)}")
 
         try:
@@ -72,9 +71,6 @@ def main():
             raise e
         else:
             update_checkpoint_file(date)
-
-        if date.date() >= today:
-            break
 
         date += timedelta(days=1)
         sleep(5)
