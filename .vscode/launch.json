@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: Solarman download",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "download_data.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug: HA uploader",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ha_data_uploader.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

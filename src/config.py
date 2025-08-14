@@ -1,6 +1,12 @@
 import os
+import logging
 
 from pydantic_settings import BaseSettings
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 class SolarmanSettings(BaseSettings):
     """
